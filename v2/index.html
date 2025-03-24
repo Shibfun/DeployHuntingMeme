@@ -353,6 +353,7 @@
                 const symbol = await coinContract.methods.symbol().call();
                 const endTime = await coinContract.methods.mintingEndTime().call();
                 const lastCatch = accounts ? await coinContract.methods.lastCatchTime(accounts[0]).call() : 0;
+                const role = accounts ? await coinContract.methods.getRole(accounts[0]).call() : 'Connect wallet to see your role';
                 const now = Math.floor(Date.now() / 1000);
                 const mintingCountdown = endTime > now ? endTime - now : 0;
                 const catchCooldown = lastCatch > 0 && accounts ? (lastCatch * 1 + 72000 - now) : 0;
@@ -360,6 +361,7 @@
                     <p>Contract: ${name} (${symbol}) - ${address.slice(0, 6)}...${address.slice(-4)}</p>
                     <p>Minting Countdown: <span id="mintingCountdown">${formatCountdown(mintingCountdown)}</span></p>
                     ${accounts ? `<p>Catch Cooldown: <span id="catchCooldown">${formatCountdown(catchCooldown)}</span></p>` : '<p>Connect wallet to see catch cooldown.</p>'}
+                    <p>Your Role: ${role}</p>
                 `;
                 if (mintingCountdown > 0) {
                     setInterval(() => {
