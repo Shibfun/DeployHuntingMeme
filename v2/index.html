@@ -34,9 +34,10 @@
         .input-group { display: flex; gap: 10px; margin: 10px 0; justify-content: center; }
         input, select { padding: 10px; border: 2px solid #FFC107; border-radius: 10px; font-size: 1em; width: 200px; background: #FFF3E0; color: #3E2723; }
         input:focus, select:focus { outline: none; border-color: #FF8F00; }
-        .coin-list, .management-panel { margin-top: 15px; }
+        .coin-list, .management-panel, .debug-panel { margin-top: 15px; }
         .coin-item { background: #FFF3E0; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #FFC107; color: #3E2723; display: flex; justify-content: space-between; align-items: center; }
         .info-panel { background: #FFF3E0; padding: 10px; border-radius: 10px; margin-top: 15px; font-size: 0.9em; color: #3E2723; }
+        .debug-panel { background: #FFF3E0; padding: 10px; border-radius: 10px; border: 1px solid #FF8F00; font-size: 0.9em; color: #3E2723; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); justify-content: center; align-items: center; }
         .modal-content { background: #FFF3E0; padding: 20px; border-radius: 15px; text-align: center; max-width: 400px; border: 3px solid #FFC107; color: #3E2723; }
         footer { margin-top: 20px; color: #FF8F00; font-size: 0.9em; text-align: center; }
@@ -78,6 +79,7 @@
         <div class="section" id="managementSection" style="display: none;">
             <div class="section-title">Manage Your MemeCoin</div>
             <div class="management-panel" id="managementPanel"></div>
+            <div class="debug-panel" id="debugPanel"></div>
         </div>
         <div class="section">
             <div class="section-title">Game Rules & Cheese Tips</div>
@@ -112,7 +114,7 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
     <script>
         let web3, accounts, factoryContract, selectedCoinContract;
-        const FACTORY_ADDRESS = "0x2c5343Fe0C275175bf6623d3274a222c75aa190C";
+        const FACTORY_ADDRESS = "0x45e2a630D9494E009dbF288A49651c436eD8504b";
         const FACTORY_ABI = [
             {"inputs":[{"internalType":"string","name":"name_","type":"string"},{"internalType":"string","name":"symbol_","type":"string"},{"internalType":"uint256","name":"mintingDuration","type":"uint256"}],"name":"createMemeCoin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[],"name":"getDeployedCoins","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},
@@ -126,6 +128,9 @@
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"target","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Burned","type":"event"},
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"catcher","type":"address"},{"indexed":true,"internalType":"address","name":"target","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Caught","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"catcher","type":"address"},{"indexed":true,"internalType":"address","name":"target","type":"address"}],"name":"DebugCatchStart","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"catcher","type":"address"},{"indexed":true,"internalType":"address","name":"target","type":"address"},{"indexed":false,"internalType":"string","name":"reason","type":"string"}],"name":"DebugCatchFail","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"bool","name":"isGameActive","type":"bool"},{"indexed":false,"internalType":"bool","name":"amountMatches","type":"bool"}],"name":"DebugTransfer","type":"event"},
             {"anonymous":false,"inputs":[],"name":"GameStarted","type":"event"},
             {"anonymous":false,"inputs":[],"name":"GameStopped","type":"event"},
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"}],"name":"OwnershipRenounced","type":"event"},
@@ -326,14 +331,71 @@
                 <p>Minting: ${mintingStatus}</p>
                 <div class="input-group">
                     <input type="text" id="whitelistAddress" placeholder="Address to whitelist">
+                    <input type="text" id="catchTarget" placeholder="Target to catch">
                 </div>
                 <div class="button-group">
                     <button onclick="addToWhitelist()">Add to Whitelist</button>
                     <button onclick="removeFromWhitelist()">Remove from Whitelist</button>
+                    <button onclick="catchTarget()">Catch Target</button>
                     ${isGameActive ? '<button onclick="stopGame()">Stop Game</button>' : '<button onclick="startGame()">Start Game</button>'}
                     ${owner !== '0x0000000000000000000000000000000000000000' ? '<button onclick="renounceOwnership()">Renounce Ownership</button>' : ''}
                 </div>
             `;
+            setupDebugListener(coinAddress);
+        }
+
+        async function catchTarget() {
+            if (!selectedCoinContract || !accounts) {
+                showModal('Select a coin and connect wallet! 🧀');
+                return;
+            }
+            const target = document.getElementById('catchTarget').value.trim();
+            if (!web3.utils.isAddress(target)) {
+                showModal('Invalid target address! 🧀');
+                return;
+            }
+            try {
+                showModal('Attempting to catch... 🧀');
+                await selectedCoinContract.methods.transfer(target, web3.utils.toWei('1', 'ether')).send({ from: accounts[0] });
+                showModal('Catch attempt completed! Check debug logs for details. 🧀');
+            } catch (error) {
+                showModal(`Catch failed: ${error.message}`);
+            }
+        }
+
+        async function setupDebugListener(coinAddress) {
+            const coinContract = new web3.eth.Contract(COIN_ABI, coinAddress);
+            const debugPanel = document.getElementById('debugPanel');
+            debugPanel.innerHTML = '<p>Debug Logs:</p>';
+
+            coinContract.events.DebugTransfer({ filter: { from: accounts[0] }, fromBlock: 'latest' })
+                .on('data', event => {
+                    const { from, to, amount, isGameActive, amountMatches } = event.returnValues;
+                    const log = document.createElement('p');
+                    log.innerText = `Transfer: From ${from.slice(0, 6)}...${from.slice(-4)} to ${to.slice(0, 6)}...${to.slice(-4)}, Amount: ${web3.utils.fromWei(amount, 'ether')}, Game Active: ${isGameActive}, Amount Matches: ${amountMatches}`;
+                    debugPanel.appendChild(log);
+                })
+                .on('error', error => console.error('DebugTransfer error:', error));
+
+            coinContract.events.DebugCatchFail({ filter: { catcher: accounts[0] }, fromBlock: 'latest' })
+                .on('data', event => {
+                    const { catcher, target, reason } = event.returnValues;
+                    const log = document.createElement('p');
+                    log.innerText = `Catch Failed: Catcher ${catcher.slice(0, 6)}...${catcher.slice(-4)}, Target ${target.slice(0, 6)}...${target.slice(-4)}, Reason: ${reason}`;
+                    log.style.color = '#FF0000';
+                    debugPanel.appendChild(log);
+                })
+                .on('error', error => console.error('DebugCatchFail error:', error));
+
+            coinContract.events.Caught({ filter: { catcher: accounts[0] }, fromBlock: 'latest' })
+                .on('data', event => {
+                    const { catcher, target, amount } = event.returnValues;
+                    const log = document.createElement('p');
+                    log.innerText = `Caught: Catcher ${catcher.slice(0, 6)}...${catcher.slice(-4)}, Target ${target.slice(0, 6)}...${target.slice(-4)}, Amount: ${web3.utils.fromWei(amount, 'ether')}`;
+                    log.style.color = '#008000';
+                    debugPanel.appendChild(log);
+                })
+                .on('error', error => console.error('Caught error:', error));
         }
 
         async function addToWhitelist() {
