@@ -3,25 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MemeCoin Factory - Shiba Edition</title>
+    <title>MemeCoin Factory - Cheese Edition</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #FF6200, #000000);
-            color: #FFFFFF;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #FFC107, #FFF3E0);
+            color: #3E2723;
             line-height: 1.6;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            background-image: url('https://www.transparenttextures.com/patterns/cheese.png');
+            background-size: cover;
         }
         .header { text-align: center; margin-bottom: 20px; }
         .header h1 {
             font-size: 2.5em;
-            color: #FF6200;
-            text-shadow: 2px 2px 4px #FFFFFF;
+            color: #FF8F00;
+            text-shadow: 2px 2px 4px #FFF3E0;
         }
         .container {
             width: 100%;
@@ -31,22 +33,22 @@
             gap: 20px;
         }
         .section {
-            background: #FFFFFF;
+            background: #FFF3E0;
             padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            border: 3px solid #FF6200;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 3px solid #FFC107;
         }
         .section-title {
             font-size: 1.5em;
-            color: #FF6200;
+            color: #FF8F00;
             margin-bottom: 15px;
             text-align: center;
         }
         .button-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
         button {
-            background: #FF6200;
-            color: #FFFFFF;
+            background: #FFC107;
+            color: #3E2723;
             border: none;
             padding: 10px 20px;
             border-radius: 20px;
@@ -54,48 +56,48 @@
             font-size: 1em;
             transition: transform 0.2s, background 0.3s;
         }
-        button:hover { background: #FF8533; transform: scale(1.05); }
-        button:disabled { background: #666666; cursor: not-allowed; transform: none; }
+        button:hover { background: #FF8F00; transform: scale(1.05); }
+        button:disabled { background: #B0BEC5; cursor: not-allowed; transform: none; }
         button.loading { opacity: 0.7; pointer-events: none; }
         .copy-btn {
             background: #FFFFFF;
-            color: #FF6200;
+            color: #FF8F00;
             padding: 5px 10px;
             font-size: 0.8em;
             border-radius: 10px;
             margin-left: 5px;
         }
-        .copy-btn:hover { background: #FF8533; color: #FFFFFF; }
+        .copy-btn:hover { background: #FF8F00; color: #FFFFFF; }
         .input-group { display: flex; gap: 10px; margin: 10px 0; justify-content: center; }
         input {
             padding: 10px;
-            border: 2px solid #FF6200;
+            border: 2px solid #FFC107;
             border-radius: 10px;
             font-size: 1em;
             width: 200px;
-            background: #000000;
-            color: #FFFFFF;
+            background: #FFF3E0;
+            color: #3E2723;
         }
-        input:focus { outline: none; border-color: #FF8533; }
+        input:focus { outline: none; border-color: #FF8F00; }
         .coin-list, .management-panel { margin-top: 15px; }
         .coin-item {
-            background: #000000;
+            background: #FFF3E0;
             padding: 10px;
             border-radius: 10px;
             margin-bottom: 10px;
-            border: 1px solid #FF6200;
-            color: #FFFFFF;
+            border: 1px solid #FFC107;
+            color: #3E2723;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .info-panel {
-            background: #000000;
+            background: #FFF3E0;
             padding: 10px;
             border-radius: 10px;
             margin-top: 15px;
             font-size: 0.9em;
-            color: #FFFFFF;
+            color: #3E2723;
         }
         .modal {
             display: none;
@@ -109,17 +111,17 @@
             align-items: center;
         }
         .modal-content {
-            background: #FFFFFF;
+            background: #FFF3E0;
             padding: 20px;
             border-radius: 15px;
             text-align: center;
             max-width: 400px;
-            border: 3px solid #FF6200;
-            color: #000000;
+            border: 3px solid #FFC107;
+            color: #3E2723;
         }
         footer {
             margin-top: 20px;
-            color: #FF6200;
+            color: #FF8F00;
             font-size: 0.9em;
             text-align: center;
         }
@@ -127,7 +129,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>MemeCoin Factory 🐾</h1>
+        <h1>MemeCoin Factory 🧀</h1>
     </div>
     <div class="container">
         <div class="section">
@@ -140,7 +142,7 @@
         <div class="section" id="createSection">
             <div class="section-title">Create a MemeCoin</div>
             <div class="input-group">
-                <input type="text" id="coinName" placeholder="Coin Name">
+                <input type="text" id="coinName" placeholder="Token Name (e.g., Shiba Inu)">
                 <input type="text" id="coinSymbol" placeholder="Symbol (e.g., SHIB)">
             </div>
             <div class="button-group">
@@ -154,9 +156,9 @@
             <div class="management-panel" id="managementPanel"></div>
         </div>
         <div class="section">
-            <div class="section-title">Game Rules & Shiba Tips</div>
+            <div class="section-title">Game Rules & Cheese Tips</div>
             <div class="info-panel">
-                <p><strong>🐾 Game Rules:</strong></p>
+                <p><strong>🧀 Game Rules:</strong></p>
                 <ul style="text-align: left;">
                     <li>Dogs can catch Dogs, Cats, & Rats; Cats can catch Cats & Rats; Rats can catch Rats!</li>
                     <li>Pay 1 token to catch, wait 20 hours (72,000 seconds) to catch again.</li>
@@ -164,12 +166,12 @@
                     <li>No catching whitelisted addresses, the owner, or BONE pairs (e.g., WBONE/MEME on Woofswap).</li>
                     <li>Dog, Cat, Rat - Identity is determined by the NONE contract.</li>
                 </ul>
-                <p><strong>🐾 Shiba Tips:</strong></p>
+                <p><strong>🧀 Cheese Tips:</strong></p>
                 <ul style="text-align: left;">
                     <li>Whitelist your pack to keep them safe from the hunt!</li>
                     <li>Feel free to add BONE pairs on Woofswap—they're exempt from catching per contract rules!</li>
-                    <li>Pause the game if the barking gets too loud—only the owner can do it.</li>
-                    <li>Renounce ownership for a wild, free Shiba party!</li>
+                    <li>Pause the game if the squeaking gets too loud—only the owner can do it.</li>
+                    <li>Renounce ownership for a wild, cheesy party!</li>
                 </ul>
             </div>
         </div>
@@ -253,7 +255,7 @@
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                showModal('Address copied to clipboard! 🐾');
+                showModal('Address copied to clipboard! 🧀');
             }).catch(err => {
                 showModal('Failed to copy address: ' + err);
             });
@@ -302,7 +304,7 @@
                     }
                 }
                 factoryContract = new web3.eth.Contract(FACTORY_ABI, FACTORY_ADDRESS);
-                showModal('Connected to Shibarium! 🐾 Time to get barking!');
+                showModal('Connected to Shibarium! 🧀 Time to get cheesy!');
                 updateUserAddress();
                 updateCreatedCoins();
             } catch (error) {
@@ -348,21 +350,21 @@
 
         async function createMemeCoin() {
             if (!web3 || !factoryContract || !accounts) {
-                showModal('Please connect your wallet first! 🐾');
+                showModal('Please connect your wallet first! 🧀');
                 return;
             }
             const name = document.getElementById('coinName').value.trim();
             const symbol = document.getElementById('coinSymbol').value.trim();
             if (!name || !symbol) {
-                showModal('Please enter a name and symbol for your MemeCoin! 🐾');
+                showModal('Please enter a name and symbol for your MemeCoin! 🧀');
                 return;
             }
             const createButton = document.getElementById('createCoinButton');
             try {
                 createButton.classList.add('loading');
-                showModal('Crafting your Shiba MemeCoin... 🐾');
+                showModal('Crafting your Cheesy MemeCoin... 🧀');
                 await factoryContract.methods.createMemeCoin(name, symbol).send({ from: accounts[0] });
-                showModal('MemeCoin created successfully! 🐾');
+                showModal('MemeCoin created successfully! 🧀');
                 document.getElementById('coinName').value = '';
                 document.getElementById('coinSymbol').value = '';
                 updateCreatedCoins();
@@ -399,13 +401,13 @@
             if (!selectedCoinContract || !accounts) return;
             const address = document.getElementById('whitelistAddress').value.trim();
             if (!web3.utils.isAddress(address)) {
-                showModal('Invalid address! 🐾');
+                showModal('Invalid address! 🧀');
                 return;
             }
             try {
-                showModal('Adding to whitelist... 🐾');
+                showModal('Adding to whitelist... 🧀');
                 await selectedCoinContract.methods.addToWhitelist(address).send({ from: accounts[0] });
-                showModal('Address added to whitelist! 🐾');
+                showModal('Address added to whitelist! 🧀');
             } catch (error) {
                 showModal(`Failed: ${error.message}`);
             }
@@ -415,13 +417,13 @@
             if (!selectedCoinContract || !accounts) return;
             const address = document.getElementById('whitelistAddress').value.trim();
             if (!web3.utils.isAddress(address)) {
-                showModal('Invalid address! 🐾');
+                showModal('Invalid address! 🧀');
                 return;
             }
             try {
-                showModal('Removing from whitelist... 🐾');
+                showModal('Removing from whitelist... 🧀');
                 await selectedCoinContract.methods.removeFromWhitelist(address).send({ from: accounts[0] });
-                showModal('Address removed from whitelist! 🐾');
+                showModal('Address removed from whitelist! 🧀');
             } catch (error) {
                 showModal(`Failed: ${error.message}`);
             }
@@ -430,9 +432,9 @@
         async function stopGame() {
             if (!selectedCoinContract || !accounts) return;
             try {
-                showModal('Stopping the game... 🐾');
+                showModal('Stopping the game... 🧀');
                 await selectedCoinContract.methods.stopGame().send({ from: accounts[0] });
-                showModal('Game stopped! 🐾');
+                showModal('Game stopped! 🧀');
                 manageCoin(await selectedCoinContract.options.address);
             } catch (error) {
                 showModal(`Failed: ${error.message}`);
@@ -442,9 +444,9 @@
         async function startGame() {
             if (!selectedCoinContract || !accounts) return;
             try {
-                showModal('Starting the game... 🐾');
+                showModal('Starting the game... 🧀');
                 await selectedCoinContract.methods.startGame().send({ from: accounts[0] });
-                showModal('Game started! 🐾');
+                showModal('Game started! 🧀');
                 manageCoin(await selectedCoinContract.options.address);
             } catch (error) {
                 showModal(`Failed: ${error.message}`);
@@ -454,9 +456,9 @@
         async function renounceOwnership() {
             if (!selectedCoinContract || !accounts) return;
             try {
-                showModal('Renouncing ownership... 🐾');
+                showModal('Renouncing ownership... 🧀');
                 await selectedCoinContract.methods.renounceOwnership().send({ from: accounts[0] });
-                showModal('Ownership renounced! 🐾');
+                showModal('Ownership renounced! 🧀');
                 manageCoin(await selectedCoinContract.options.address);
             } catch (error) {
                 showModal(`Failed: ${error.message}`);
