@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemeCoin Factory - Cheese Edition</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #FFC107, #FFF3E0);
+            color: #3E2723;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: url('https://www.transparenttextures.com/patterns/cheese.png');
+            background-size: cover;
+        }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { font-size: 2.5em; color: #FF8F00; text-shadow: 2px 2px 4px #FFF3E0; }
+        .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 20px; }
+        .section { background: #FFF3E0; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); border: 3px solid #FFC107; }
+        .section-title { font-size: 1.5em; color: #FF8F00; margin-bottom: 15px; text-align: center; }
+        .button-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        button { background: #FFC107; color: #3E2723; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 1em; transition: transform 0.2s, background 0.3s; }
+        button:hover { background: #FF8F00; transform: scale(1.05); }
+        button:disabled { background: #B0BEC5; cursor: not-allowed; transform: none; }
+        button.loading { opacity: 0.7; pointer-events: none; }
+        .copy-btn { background: #FFFFFF; color: #FF8F00; padding: 5px 10px; font-size: 0.8em; border-radius: 10px; margin-left: 5px; }
+        .copy-btn:hover { background: #FF8F00; color: #FFFFFF; }
+        .input-group { display: flex; gap: 10px; margin: 10px 0; justify-content: center; }
+        input, select { padding: 10px; border: 2px solid #FFC107; border-radius: 10px; font-size: 1em; width: 200px; background: #FFF3E0; color: #3E2723; }
+        input:focus, select:focus { outline: none; border-color: #FF8F00; }
+        .coin-list, .management-panel { margin-top: 15px; }
+        .coin-item { background: #FFF3E0; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #FFC107; color: #3E2723; display: flex; justify-content: space-between; align-items: center; }
+        .info-panel { background: #FFF3E0; padding: 10px; border-radius: 10px; margin-top: 15px; font-size: 0.9em; color: #3E2723; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); justify-content: center; align-items: center; }
+        .modal-content { background: #FFF3E0; padding: 20px; border-radius: 15px; text-align: center; max-width: 400px; border: 3px solid #FFC107; color: #3E2723; }
+        footer { margin-top: 20px; color: #FF8F00; font-size: 0.9em; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>MemeCoin Factory 🧀</h1>
+    </div>
+    <div class="container">
+        <div class="section">
+            <div class="section-title">Connect Your Wallet</div>
+            <div class="button-group">
+                <button id="connectButton">Connect MetaMask</button>
+            </div>
+            <div class="info-panel">Wallet: <span id="walletAddress">Not connected</span></div>
+        </div>
+        <div class="section" id="createSection">
+            <div class="section-title">Create a MemeCoin</div>
+            <div class="input-group">
+                <input type="text" id="coinName" placeholder="Token Name (e.g., Shiba Inu)">
+                <input type="text" id="coinSymbol" placeholder="Symbol (e.g., SHIB)">
+                <select id="mintingDays">
+                    <option value="1">1 Day</option>
+                    <option value="2">2 Days</option>
+                    <option value="3">3 Days</option>
+                    <option value="4">4 Days</option>
+                    <option value="5">5 Days</option>
+                    <option value="6">6 Days</option>
+                    <option value="7">7 Days</option>
+                </select>
+            </div>
+            <div class="button-group">
+                <button id="createCoinButton">Create MemeCoin</button>
+            </div>
+            <div class="info-panel" id="createdCoins">Your Created Coins: None</div>
+            <div class="coin-list" id="coinList"></div>
+        </div>
+        <div class="section" id="managementSection" style="display: none;">
+            <div class="section-title">Manage Your MemeCoin</div>
+            <div class="management-panel" id="managementPanel"></div>
+        </div>
+        <div class="section">
+            <div class="section-title">Game Rules & Cheese Tips</div>
+            <div class="info-panel">
+                <p><strong>🧀 Game Rules:</strong></p>
+                <ul style="text-align: left;">
+                    <li>Dogs can catch Dogs, Cats, & Rats; Cats can catch Cats & Rats; Rats can catch Rats!</li>
+                    <li>Pay 1 token to catch, wait 20 hours (72,000 seconds) to catch again.</li>
+                    <li>Catcher gets 70% of 1% of target's balance, 30% gets burned.</li>
+                    <li>No catching whitelisted addresses, the owner, or BONE pairs (e.g., WBONE/MEME on Woofswap).</li>
+                    <li>Dog, Cat, Rat - Identity is determined by the <a href="https://shibfun.github.io/none/" target="_blank" style="color: #FF8F00; text-decoration: underline;">NONE contract</a>.</li>
+                    <li>Mint 10M tokens per call during the 1-7 day minting period!</li>
+                </ul>
+                <p><strong>🧀 Cheese Tips:</strong></p>
+                <ul style="text-align: left;">
+                    <li>Whitelist your pack to keep them safe from the hunt!</li>
+                    <li>Add BONE pairs on Woofswap—they're exempt from catching!</li>
+                    <li>Pause the game if it gets too wild—only the owner can do it.</li>
+                    <li>Renounce ownership for a cheesy free-for-all!</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <footer>Powered by Shibarium © 2025</footer>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <p id="modalMessage"></p>
+            <button onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
+    <script>
+        let web3, accounts, factoryContract, selectedCoinContract;
+        const FACTORY_ADDRESS = "0x2c5343Fe0C275175bf6623d3274a222c75aa190C";
+        const FACTORY_ABI = [
+            {"inputs":[{"internalType":"string","name":"name_","type":"string"},{"internalType":"string","name":"symbol_","type":"string"},{"internalType":"uint256","name":"mintingDuration","type":"uint256"}],"name":"createMemeCoin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"getDeployedCoins","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"getDeployedCoinsCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"creator","type":"address"}],"name":"getCoinsByCreator","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"creator","type":"address"}],"name":"getCoinsByCreatorCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"creator","type":"address"},{"indexed":true,"internalType":"address","name":"coinAddress","type":"address"},{"indexed":false,"internalType":"string","name":"name","type":"string"},{"indexed":false,"internalType":"string","name":"symbol","type":"string"}],"name":"MemeCoinCreated","type":"event"}
+        ];
+        const COIN_ABI = [
+            {"inputs":[{"internalType":"string","name":"name_","type":"string"},{"internalType":"string","name":"symbol_","type":"string"},{"internalType":"address","name":"creator","type":"address"},{"internalType":"uint256","name":"mintingDuration","type":"uint256"}],"stateMutability":"nonpayable","type":"constructor"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"target","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Burned","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"catcher","type":"address"},{"indexed":true,"internalType":"address","name":"target","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Caught","type":"event"},
+            {"anonymous":false,"inputs":[],"name":"GameStarted","type":"event"},
+            {"anonymous":false,"inputs":[],"name":"GameStopped","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"}],"name":"OwnershipRenounced","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"target","type":"address"},{"indexed":false,"internalType":"bool","name":"added","type":"bool"}],"name":"WhitelistUpdated","type":"event"},
+            {"inputs":[{"internalType":"address","name":"target","type":"address"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"mint","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"target","type":"address"},{"internalType":"uint256","name":"page","type":"uint256"},{"internalType":"uint256","name":"pageSize","type":"uint256"}],"name":"getCatchRecords","outputs":[{"components":[{"internalType":"address","name":"catcher","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"timestamp","type":"uint256"}],"internalType":"struct MemeCoin.CatchRecord[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"target","type":"address"}],"name":"getCatchRecordsCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getRole","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"target","type":"address"}],"name":"removeFromWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"startGame","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"stopGame","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"CATCH_COOLDOWN","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"CATCH_COST","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"MINT_AMOUNT","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"catchRecords","outputs":[{"internalType":"address","name":"catcher","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"timestamp","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"isGameActive","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastCatchTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"mintingStartTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"mintingEndTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"noneToken","outputs":[{"internalType":"contract INoneToken","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"pairFactory","outputs":[{"internalType":"contract IPairFactory","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"WBONE","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"whitelist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}
+        ];
+        const shibariumMainnet = {
+            chainId: 109,
+            chainName: 'Shibarium',
+            nativeCurrency: { name: 'BONE', symbol: 'BONE', decimals: 18 },
+            rpcUrls: ['https://www.shibrpc.com'],
+            blockExplorerUrls: ['https://shibariumscan.io']
+        };
+
+        function showModal(message) {
+            document.getElementById('modalMessage').innerHTML = message;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => showModal('Address copied! 🧀')).catch(err => showModal('Copy failed: ' + err));
+        }
+
+        async function updateUserAddress() {
+            document.getElementById('walletAddress').innerText = accounts ? `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}` : 'Not connected';
+        }
+
+        async function connectWallet() {
+            const connectButton = document.getElementById('connectButton');
+            try {
+                if (!window.ethereum) {
+                    showModal('Install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
+                    return;
+                }
+                connectButton.classList.add('loading');
+                web3 = new Web3(window.ethereum);
+                accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                if (!accounts.length) {
+                    showModal('Unlock or connect your wallet.');
+                    return;
+                }
+                const chainId = await web3.eth.getChainId();
+                if (chainId !== 109) {
+                    try {
+                        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: web3.utils.numberToHex(109) }] });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [shibariumMainnet] });
+                        } else {
+                            showModal('Switch to Shibarium manually.');
+                            return;
+                        }
+                    }
+                }
+                factoryContract = new web3.eth.Contract(FACTORY_ABI, FACTORY_ADDRESS);
+                showModal('Connected to Shibarium! 🧀');
+                updateUserAddress();
+                updateCreatedCoins();
+            } catch (error) {
+                showModal(`Connection failed: ${error.message}`);
+            } finally {
+                connectButton.classList.remove('loading');
+            }
+        }
+
+        async function updateCreatedCoins() {
+            if (!web3 || !factoryContract || !accounts) {
+                document.getElementById('createdCoins').innerText = 'Your Created Coins: None';
+                document.getElementById('coinList').innerHTML = '';
+                document.getElementById('managementSection').style.display = 'none';
+                return;
+            }
+            const coins = await factoryContract.methods.getCoinsByCreator(accounts[0]).call();
+            const coinList = document.getElementById('coinList');
+            coinList.innerHTML = '';
+            if (coins.length === 0) {
+                document.getElementById('createdCoins').innerText = 'Your Created Coins: None';
+                document.getElementById('managementSection').style.display = 'none';
+            } else {
+                document.getElementById('createdCoins').innerText = `Your Created Coins: ${coins.length}`;
+                for (const coinAddr of coins) {
+                    const coinContract = new web3.eth.Contract(COIN_ABI, coinAddr);
+                    const name = await coinContract.methods.name().call();
+                    const symbol = await coinContract.methods.symbol().call();
+                    const endTime = await coinContract.methods.mintingEndTime().call();
+                    const now = Math.floor(Date.now() / 1000);
+                    const mintingActive = now < endTime ? 'Minting Active' : 'Minting Ended';
+                    const coinItem = document.createElement('div');
+                    coinItem.className = 'coin-item';
+                    coinItem.innerHTML = `
+                        <span>${name} (${symbol}) - ${coinAddr.slice(0, 6)}...${coinAddr.slice(-4)} (${mintingActive})</span>
+                        <div>
+                            <button class="copy-btn" onclick="copyToClipboard('${coinAddr}')">Copy</button>
+                            <button onclick="manageCoin('${coinAddr}')">Manage</button>
+                            <button onclick="mintCoin('${coinAddr}')">Mint</button>
+                        </div>
+                    `;
+                    coinList.appendChild(coinItem);
+                }
+                document.getElementById('managementSection').style.display = 'block';
+            }
+        }
+
+        async function createMemeCoin() {
+            if (!web3 || !factoryContract || !accounts) {
+                showModal('Connect your wallet first! 🧀');
+                return;
+            }
+            const name = document.getElementById('coinName').value.trim();
+            const symbol = document.getElementById('coinSymbol').value.trim();
+            const days = document.getElementById('mintingDays').value;
+            if (!name || !symbol) {
+                showModal('Enter name and symbol! 🧀');
+                return;
+            }
+            const createButton = document.getElementById('createCoinButton');
+            try {
+                createButton.classList.add('loading');
+                showModal('Crafting your MemeCoin... 🧀');
+                await factoryContract.methods.createMemeCoin(name, symbol, days).send({ from: accounts[0] });
+                showModal('MemeCoin created! 🧀');
+                document.getElementById('coinName').value = '';
+                document.getElementById('coinSymbol').value = '';
+                updateCreatedCoins();
+            } catch (error) {
+                showModal(`Creation failed: ${error.message}`);
+            } finally {
+                createButton.classList.remove('loading');
+            }
+        }
+
+        async function mintCoin(coinAddress) {
+            if (!web3 || !accounts) {
+                showModal('Connect your wallet first! 🧀');
+                return;
+            }
+            const coinContract = new web3.eth.Contract(COIN_ABI, coinAddress);
+            try {
+                showModal('Minting 10M tokens... 🧀');
+                await coinContract.methods.mint().send({ from: accounts[0] });
+                showModal('Minted 10M tokens! 🧀');
+                updateCreatedCoins();
+            } catch (error) {
+                showModal(`Mint failed: ${error.message}`);
+            }
+        }
+
+        async function manageCoin(coinAddress) {
+            selectedCoinContract = new web3.eth.Contract(COIN_ABI, coinAddress);
+            const name = await selectedCoinContract.methods.name().call();
+            const symbol = await selectedCoinContract.methods.symbol().call();
+            const owner = await selectedCoinContract.methods.owner().call();
+            const isGameActive = await selectedCoinContract.methods.isGameActive().call();
+            const endTime = await selectedCoinContract.methods.mintingEndTime().call();
+            const now = Math.floor(Date.now() / 1000);
+            const mintingStatus = now < endTime ? 'Minting Active' : 'Minting Ended';
+            const managementPanel = document.getElementById('managementPanel');
+            managementPanel.innerHTML = `
+                <p>Managing: ${name} (${symbol}) - ${coinAddress.slice(0, 6)}...${coinAddress.slice(-4)}</p>
+                <p>Owner: ${owner === '0x0000000000000000000000000000000000000000' ? 'Renounced' : `${owner.slice(0, 6)}...${owner.slice(-4)}`}</p>
+                <p>Minting: ${mintingStatus}</p>
+                <div class="input-group">
+                    <input type="text" id="whitelistAddress" placeholder="Address to whitelist">
+                </div>
+                <div class="button-group">
+                    <button onclick="addToWhitelist()">Add to Whitelist</button>
+                    <button onclick="removeFromWhitelist()">Remove from Whitelist</button>
+                    ${isGameActive ? '<button onclick="stopGame()">Stop Game</button>' : '<button onclick="startGame()">Start Game</button>'}
+                    ${owner !== '0x0000000000000000000000000000000000000000' ? '<button onclick="renounceOwnership()">Renounce Ownership</button>' : ''}
+                </div>
+            `;
+        }
+
+        async function addToWhitelist() {
+            if (!selectedCoinContract || !accounts) return;
+            const address = document.getElementById('whitelistAddress').value.trim();
+            if (!web3.utils.isAddress(address)) {
+                showModal('Invalid address! 🧀');
+                return;
+            }
+            try {
+                showModal('Adding to whitelist... 🧀');
+                await selectedCoinContract.methods.addToWhitelist(address).send({ from: accounts[0] });
+                showModal('Added to whitelist! 🧀');
+            } catch (error) {
+                showModal(`Failed: ${error.message}`);
+            }
+        }
+
+        async function removeFromWhitelist() {
+            if (!selectedCoinContract || !accounts) return;
+            const address = document.getElementById('whitelistAddress').value.trim();
+            if (!web3.utils.isAddress(address)) {
+                showModal('Invalid address! 🧀');
+                return;
+            }
+            try {
+                showModal('Removing from whitelist... 🧀');
+                await selectedCoinContract.methods.removeFromWhitelist(address).send({ from: accounts[0] });
+                showModal('Removed from whitelist! 🧀');
+            } catch (error) {
+                showModal(`Failed: ${error.message}`);
+            }
+        }
+
+        async function stopGame() {
+            if (!selectedCoinContract || !accounts) return;
+            try {
+                showModal('Stopping game... 🧀');
+                await selectedCoinContract.methods.stopGame().send({ from: accounts[0] });
+                showModal('Game stopped! 🧀');
+                manageCoin(await selectedCoinContract.options.address);
+            } catch (error) {
+                showModal(`Failed: ${error.message}`);
+            }
+        }
+
+        async function startGame() {
+            if (!selectedCoinContract || !accounts) return;
+            try {
+                showModal('Starting game... 🧀');
+                await selectedCoinContract.methods.startGame().send({ from: accounts[0] });
+                showModal('Game started! 🧀');
+                manageCoin(await selectedCoinContract.options.address);
+            } catch (error) {
+                showModal(`Failed: ${error.message}`);
+            }
+        }
+
+        async function renounceOwnership() {
+            if (!selectedCoinContract || !accounts) return;
+            try {
+                showModal('Renouncing ownership... 🧀');
+                await selectedCoinContract.methods.renounceOwnership().send({ from: accounts[0] });
+                showModal('Ownership renounced! 🧀');
+                manageCoin(await selectedCoinContract.options.address);
+            } catch (error) {
+                showModal(`Failed: ${error.message}`);
+            }
+        }
+
+        document.getElementById('connectButton').addEventListener('click', connectWallet);
+        document.getElementById('createCoinButton').addEventListener('click', createMemeCoin);
+
+        window.ethereum?.on('chainChanged', (chainId) => {
+            if (parseInt(chainId, 16) !== 109) {
+                showModal('Switched to wrong network. Reconnect to Shibarium.');
+                web3 = null;
+                factoryContract = null;
+                accounts = null;
+                updateUserAddress();
+                updateCreatedCoins();
+            } else {
+                connectWallet();
+            }
+        });
+
+        window.ethereum?.on('accountsChanged', (newAccounts) => {
+            if (newAccounts.length) {
+                connectWallet();
+            } else {
+                showModal('Wallet disconnected. Reconnect.');
+                web3 = null;
+                factoryContract = null;
+                accounts = null;
+                updateUserAddress();
+                updateCreatedCoins();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            if (!window.location.protocol.startsWith('http')) {
+                showModal('Run via a local server (e.g., "npx serve") to connect MetaMask.');
+            } else if (!window.ethereum) {
+                showModal('Install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
+            }
+        });
+    </script>
+</body>
+</html>
