@@ -34,10 +34,10 @@
         .input-group { display: flex; gap: 10px; margin: 10px 0; justify-content: center; }
         input, select { padding: 10px; border: 2px solid #FFC107; border-radius: 10px; font-size: 1em; width: 200px; background: #FFF3E0; color: #3E2723; }
         input:focus, select:focus { outline: none; border-color: #FF8F00; }
-        .coin-list, .management-panel, .debug-panel { margin-top: 15px; }
+        .coin-list, .management-panel, .debug-panel, .search-panel { margin-top: 15px; }
         .coin-item { background: #FFF3E0; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #FFC107; color: #3E2723; display: flex; justify-content: space-between; align-items: center; }
-        .info-panel { background: #FFF3E0; padding: 10px; border-radius: 10px; margin-top: 15px; font-size: 0.9em; color: #3E2723; }
-        .debug-panel { background: #FFF3E0; padding: 10px; border-radius: 10px; border: 1px solid #FF8F00; font-size: 0.9em; color: #3E2723; }
+        .info-panel, .search-result { background: #FFF3E0; padding: 10px; border-radius: 10px; margin-top: 15px; font-size: 0.9em; color: #3E2723; }
+        .debug-panel { background: #FFF3E0; padding: 10px; border-radius: 10px; border: 1px solid #FF8F00; font-size: 0.9em; color: #3E2723; max-height: 200px; overflow-y: auto; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); justify-content: center; align-items: center; }
         .modal-content { background: #FFF3E0; padding: 20px; border-radius: 15px; text-align: center; max-width: 400px; border: 3px solid #FFC107; color: #3E2723; }
         footer { margin-top: 20px; color: #FF8F00; font-size: 0.9em; text-align: center; }
@@ -75,6 +75,16 @@
             </div>
             <div class="info-panel" id="createdCoins">Your Created Coins: None</div>
             <div class="coin-list" id="coinList"></div>
+        </div>
+        <div class="section" id="searchSection">
+            <div class="section-title">Search MemeCoin</div>
+            <div class="search-panel">
+                <div class="input-group">
+                    <input type="text" id="searchContract" placeholder="Enter Contract Address">
+                    <button onclick="searchContract()">Search</button>
+                </div>
+                <div class="search-result" id="searchResult"></div>
+            </div>
         </div>
         <div class="section" id="managementSection" style="display: none;">
             <div class="section-title">Manage Your MemeCoin</div>
@@ -189,6 +199,17 @@
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => showModal('Address copied! 🧀')).catch(err => showModal('Copy failed: ' + err));
+        }
+
+        function formatCountdown(seconds) {
+            if (seconds <= 0) return 'Ended';
+            const days = Math.floor(seconds / (24 * 3600));
+            seconds %= (24 * 3600);
+            const hours = Math.floor(seconds / 3600);
+            seconds %= 3600;
+            const minutes = Math.floor(seconds / 60);
+            seconds = Math.floor(seconds % 60);
+            return days > 0 ? `${days}d ${hours}h ${minutes}m ${seconds}s` : `${hours}h ${minutes}m ${seconds}s`;
         }
 
         async function updateUserAddress() {
@@ -315,6 +336,50 @@
             }
         }
 
+        async function searchContract() {
+            if (!web3) {
+                showModal('Connect your wallet first! 🧀');
+                return;
+            }
+            const address = document.getElementById('searchContract').value.trim();
+            if (!web3.utils.isAddress(address)) {
+                showModal('Invalid contract address! 🧀');
+                return;
+            }
+            const coinContract = new web3.eth.Contract(COIN_ABI, address);
+            const searchResult = document.getElementById('searchResult');
+            try {
+                const name = await coinContract.methods.name().call();
+                const symbol = await coinContract.methods.symbol().call();
+                const endTime = await coinContract.methods.mintingEndTime().call();
+                const lastCatch = accounts ? await coinContract.methods.lastCatchTime(accounts[0]).call() : 0;
+                const now = Math.floor(Date.now() / 1000);
+                const mintingCountdown = endTime > now ? endTime - now : 0;
+                const catchCooldown = lastCatch > 0 && accounts ? (lastCatch * 1 + 72000 - now) : 0;
+                searchResult.innerHTML = `
+                    <p>Contract: ${name} (${symbol}) - ${address.slice(0, 6)}...${address.slice(-4)}</p>
+                    <p>Minting Countdown: <span id="mintingCountdown">${formatCountdown(mintingCountdown)}</span></p>
+                    ${accounts ? `<p>Catch Cooldown: <span id="catchCooldown">${formatCountdown(catchCooldown)}</span></p>` : '<p>Connect wallet to see catch cooldown.</p>'}
+                `;
+                if (mintingCountdown > 0) {
+                    setInterval(() => {
+                        const updatedNow = Math.floor(Date.now() / 1000);
+                        const updatedMinting = endTime > updatedNow ? endTime - updatedNow : 0;
+                        document.getElementById('mintingCountdown').innerText = formatCountdown(updatedMinting);
+                    }, 1000);
+                }
+                if (catchCooldown > 0 && accounts) {
+                    setInterval(() => {
+                        const updatedNow = Math.floor(Date.now() / 1000);
+                        const updatedCatch = lastCatch > 0 ? (lastCatch * 1 + 72000 - updatedNow) : 0;
+                        document.getElementById('catchCooldown').innerText = formatCountdown(updatedCatch);
+                    }, 1000);
+                }
+            } catch (error) {
+                showModal(`Search failed: ${error.message}`);
+            }
+        }
+
         async function manageCoin(coinAddress) {
             selectedCoinContract = new web3.eth.Contract(COIN_ABI, coinAddress);
             const name = await selectedCoinContract.methods.name().call();
@@ -331,12 +396,10 @@
                 <p>Minting: ${mintingStatus}</p>
                 <div class="input-group">
                     <input type="text" id="whitelistAddress" placeholder="Address to whitelist">
-                    <input type="text" id="catchTarget" placeholder="Target to catch">
                 </div>
                 <div class="button-group">
                     <button onclick="addToWhitelist()">Add to Whitelist</button>
                     <button onclick="removeFromWhitelist()">Remove from Whitelist</button>
-                    <button onclick="catchTarget()">Catch Target</button>
                     ${isGameActive ? '<button onclick="stopGame()">Stop Game</button>' : '<button onclick="startGame()">Start Game</button>'}
                     ${owner !== '0x0000000000000000000000000000000000000000' ? '<button onclick="renounceOwnership()">Renounce Ownership</button>' : ''}
                 </div>
@@ -344,26 +407,8 @@
             setupDebugListener(coinAddress);
         }
 
-        async function catchTarget() {
-            if (!selectedCoinContract || !accounts) {
-                showModal('Select a coin and connect wallet! 🧀');
-                return;
-            }
-            const target = document.getElementById('catchTarget').value.trim();
-            if (!web3.utils.isAddress(target)) {
-                showModal('Invalid target address! 🧀');
-                return;
-            }
-            try {
-                showModal('Attempting to catch... 🧀');
-                await selectedCoinContract.methods.transfer(target, web3.utils.toWei('1', 'ether')).send({ from: accounts[0] });
-                showModal('Catch attempt completed! Check debug logs for details. 🧀');
-            } catch (error) {
-                showModal(`Catch failed: ${error.message}`);
-            }
-        }
-
         async function setupDebugListener(coinAddress) {
+            if (!accounts) return;
             const coinContract = new web3.eth.Contract(COIN_ABI, coinAddress);
             const debugPanel = document.getElementById('debugPanel');
             debugPanel.innerHTML = '<p>Debug Logs:</p>';
