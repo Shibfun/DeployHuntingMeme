@@ -15,32 +15,41 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
             background-image: url('https://www.transparenttextures.com/patterns/cheese.png');
             background-size: cover;
         }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { font-size: 2.5em; color: #FF8F00; text-shadow: 2px 2px 4px #FFF3E0; }
-        .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 20px; }
-        .section { background: #FFF3E0; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); border: 3px solid #FFC107; }
-        .section-title { font-size: 1.5em; color: #FF8F00; margin-bottom: 15px; text-align: center; }
-        .button-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        button { background: #FFC107; color: #3E2723; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 1em; transition: transform 0.2s, background 0.3s; }
+        .header { text-align: center; margin-bottom: 15px; }
+        .header h1 { font-size: 2em; color: #FF8F00; text-shadow: 2px 2px 4px #FFF3E0; }
+        .container { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 15px; }
+        .section { background: #FFF3E0; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); border: 2px solid #FFC107; }
+        .section-title { font-size: 1.3em; color: #FF8F00; margin-bottom: 10px; text-align: center; }
+        .button-group { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        button { background: #FFC107; color: #3E2723; border: none; padding: 8px 16px; border-radius: 15px; cursor: pointer; font-size: 0.9em; transition: transform 0.2s, background 0.3s; }
         button:hover { background: #FF8F00; transform: scale(1.05); }
         button:disabled { background: #B0BEC5; cursor: not-allowed; transform: none; }
         button.loading { opacity: 0.7; pointer-events: none; }
-        .copy-btn { background: #FFFFFF; color: #FF8F00; padding: 5px 10px; font-size: 0.8em; border-radius: 10px; margin-left: 5px; }
+        .copy-btn { background: #FFFFFF; color: #FF8F00; padding: 5px 10px; font-size: 0.8em; border-radius: 10px; }
         .copy-btn:hover { background: #FF8F00; color: #FFFFFF; }
-        .input-group { display: flex; gap: 10px; margin: 10px 0; justify-content: center; }
-        input, select { padding: 10px; border: 2px solid #FFC107; border-radius: 10px; font-size: 1em; width: 200px; background: #FFF3E0; color: #3E2723; }
+        .input-group { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; justify-content: center; }
+        input, select { padding: 8px; border: 2px solid #FFC107; border-radius: 10px; font-size: 0.9em; width: 100%; max-width: 180px; background: #FFF3E0; color: #3E2723; }
         input:focus, select:focus { outline: none; border-color: #FF8F00; }
-        .coin-list, .management-panel, .debug-panel, .search-panel { margin-top: 15px; }
-        .coin-item { background: #FFF3E0; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #FFC107; color: #3E2723; display: flex; justify-content: space-between; align-items: center; }
-        .info-panel, .search-result { background: #FFF3E0; padding: 10px; border-radius: 10px; margin-top: 15px; font-size: 0.9em; color: #3E2723; }
-        .debug-panel { background: #FFF3E0; padding: 10px; border-radius: 10px; border: 1px solid #FF8F00; font-size: 0.9em; color: #3E2723; max-height: 200px; overflow-y: auto; }
+        .coin-list, .management-panel, .debug-panel, .search-panel { margin-top: 10px; }
+        .coin-item { background: #FFF3E0; padding: 8px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #FFC107; color: #3E2723; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+        .info-panel, .search-result { background: #FFF3E0; padding: 8px; border-radius: 8px; margin-top: 10px; font-size: 0.85em; color: #3E2723; }
+        .debug-panel { background: #FFF3E0; padding: 8px; border-radius: 8px; border: 1px solid #FF8F00; font-size: 0.85em; color: #3E2723; max-height: 150px; overflow-y: auto; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); justify-content: center; align-items: center; }
-        .modal-content { background: #FFF3E0; padding: 20px; border-radius: 15px; text-align: center; max-width: 400px; border: 3px solid #FFC107; color: #3E2723; }
-        footer { margin-top: 20px; color: #FF8F00; font-size: 0.9em; text-align: center; }
+        .modal-content { background: #FFF3E0; padding: 15px; border-radius: 10px; text-align: center; max-width: 90%; border: 2px solid #FFC107; color: #3E2723; }
+        footer { margin-top: 15px; color: #FF8F00; font-size: 0.85em; text-align: center; }
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.5em; }
+            .section { padding: 10px; }
+            .section-title { font-size: 1.1em; }
+            button { padding: 6px 12px; font-size: 0.85em; }
+            input, select { max-width: 100%; font-size: 0.85em; }
+            .coin-item { flex-direction: column; align-items: flex-start; }
+            .button-group { flex-direction: column; align-items: center; }
+        }
     </style>
 </head>
 <body>
